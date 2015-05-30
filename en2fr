@@ -1,0 +1,12 @@
+#!/bin/sh
+
+read EXPR               
+EXPR=$(echo $EXPR | tr '[A-Z]' '[a-z]')
+
+grep "^.*$EXPR.*$" 100wd_en.rs  | while read line ; do
+      echo $line | awk -F\| '{print $2}' | grep -q "$EXPR<"
+      RESULT=$?
+      if [ "$(echo $line | awk -F\| '{print $2}')" = "$EXPR" ] || [ $RESULT -eq 0 ]; then 
+         echo $(echo $(grep "^$(echo $line | awk -F\| '{print $1}')|" 100wd_fr.res) | awk -F\| '{print $2}')
+      fi
+done

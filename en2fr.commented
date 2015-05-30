@@ -1,0 +1,42 @@
+#!/bin/sh
+
+
+#REGEX :([\S]+)\s+ 
+#FILE=/tmp/en2fr-$$
+
+#read EXPR
+#echo $EXPR | sed 's/\([^0-9]\)\([^0-9]\)/\1 \2/g; s/\([0-9]\+\)\([^0-9]\)/\1 \2/g; s/\([^0-9]\)\([0-9]\+\)/\1 \2/g; s/\([*()]\)/\\\1/g; s/^/expr /' > $FILE
+#sh $FILE
+#EXIT_STATUS=$?
+#rm -f $FILE
+#exit $EXIT_STATUS
+read EXPR               
+# Convert to lower case
+EXPR=$(echo $EXPR | tr '[A-Z]' '[a-z]')
+
+#For each line of the file we find *EXPR*, we store the line
+grep "^.*$EXPR.*$" 100wd_en.rs  | while read line ; do
+   	#if this line really has the word EXPR
+   	           #TEST=$(echo $line | grep "\|$EXPR")
+   	           #echo debug : Coresp :$TEST
+   	#if $(echo $line | grep -q "\|$EXPR"); #could have been a solution but the regex doesnt work in bash it seems, 
+      #maybe the if test was the issue
+      #after the || is for the case where we have SOMETHING<\...
+      echo $line | awk -F\| '{print $2}' | grep -q "$EXPR<" #this is for our 2nd condition
+      RESULT=$?                                             #we store the error code here, 0 means pass
+      if [ "$(echo $line | awk -F\| '{print $2}')" = "$EXPR" ] || [ $RESULT -eq 0 ]; then 
+   		#we take the number of the line
+   		#LINENB=$(echo $line | sed -r 's/.*([0-9]+).*/\1/g') #should work? but doesn't
+   		LINENB=$(echo $line | awk -F\| '{print $1}')
+   	                #echo debug : line number $LINENB
+   		#which will be what we will use to look for the good line in the French file
+   		#we take the line from it
+   		LINETRANS=$(grep "^$LINENB|" 100wd_fr.res)
+   		             #echo debug : translation line : $LINETRANS
+   		#which we will extract the corresponding word from by taking the part of the string after |
+   		TRA=$(echo $LINETRANS | awk -F\| '{print $2}')
+   		echo $TRA
+   	fi
+done
+
+#grep '^.*you.*$' 100wd_en.rs 
