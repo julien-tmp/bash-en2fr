@@ -51,6 +51,7 @@ then
         PORT=$2
 fi
 
+# FOr the networked version, it checks if our command is nen2fr_ui
 if [ $# -ge 1 -o `basename $0` = 'nen2fr_ui' ]
 then
 	if [ $HOST -a $PORT ]
@@ -66,12 +67,18 @@ fi
 while true
 do
 	$DIALOG --inputbox "`$GETTEXT \"Enter the word to translate:\"`" 8 35 2> $FILE1 || end
-	if cat $FILE1 | $EN2FR > $FILE2 2>$ERROR
+	if cat $FILE1 | $EN2FR > $FILE2 2>$ERROR #if there is something in the file from input or/and the execution of the program works
+		#at the same time we store the output in FILE2, and the error code in ERROR
 	then
-		MSG="`$GETTEXT \"French equivalent:\"` `cat $FILE2`\\n\\n`$GETTEXT \"Continue?\"`"
-		$DIALOG --yesno "$MSG" 7 20 || end
-	else
-		MSG="`$GETTEXT \"Error: Please choose a word from the Swadesh Dictionnary only\"`\\n\\n`cat $ERROR`\\n\\n`$GETTEXT \"Continue?\"`"
+		if [[ -s $FILE2 ]]; then 	#if there is something in FILE2, we have our translation
+			MSG="`$GETTEXT \"French equivalent:\"` `cat $FILE2`\\n\\n`$GETTEXT \"Continue?\"`"
+			$DIALOG --yesno "$MSG" 7 20 || end
+		else 						#else this word wasn't found in the swadesh dictionary
+			MSG="`$GETTEXT \"Error: Please choose a word from the Swadesh Dictionnary only\"`\\n\\n`cat $ERROR`\\n\\n`$GETTEXT \"Continue?\"`"
+			$DIALOG --yesno "$MSG" 10 35 || end
+		fi
+	else #else error
+		MSG="`$GETTEXT \"Error: IO, file or network\"`\\n\\n`cat $ERROR`\\n\\n`$GETTEXT \"Continue?\"`"
 		$DIALOG --yesno "$MSG" 10 35 || end
 	fi
 done

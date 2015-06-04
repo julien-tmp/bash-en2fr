@@ -25,3 +25,7 @@ msgstr "Продолжаем?"
 #: en2fr_ui
 msgid "Error: Please choose a word from the Swadesh Dictionnary only"
 msgstr "Ошибочка вышла: Пожалуйста, выберите слово из Swadesh Dictionnary"
+
+#: en2fr_ui
+msgid "Error: IO, file or network"
+msgstr "Ошибочка вышла: IO, file or network"

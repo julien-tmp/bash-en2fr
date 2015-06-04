@@ -16,18 +16,22 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: en2fr_ui:24
+#: en2fr_ui
 msgid "Enter the word to translate:"
 msgstr ""
 
-#: en2fr_ui:28
+#: en2fr_ui
 msgid "French equivalent:"
 msgstr ""
 
-#: en2fr_ui:28 en2fr_ui:31
+#: en2fr_ui
 msgid "Continue?"
 msgstr ""
 
-#: en2fr_ui:31
+#: en2fr_ui
 msgid "Error: Please choose a word from the Swadesh Dictionnary only"
+msgstr ""
+
+#: en2fr_ui
+msgid "Error: IO, file or network"
 msgstr ""
