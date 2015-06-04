@@ -1,12 +1,20 @@
 #!/bin/sh
+TMP=/tmp/frswadeshdict-$$ #This temporary file avoids to make one request per loop line
+
+# We do it before the input so that the user feel less latency after he enters the word
+curl -s http://semes-olla.rhcloud.com/words?Swadesh/Romance/French.py > $TMP
 
 read EXPR               
 EXPR=$(echo $EXPR | tr '[A-Z]' '[a-z]')
 
-grep "^.*$EXPR.*$" 100wd_en.rs  | while read line ; do
+curl -s http://semes-olla.rhcloud.com/words?Swadesh/English.py | grep "^.*$EXPR.*$" | while read line ; do
       echo $line | awk -F\| '{print $2}' | grep -q "$EXPR<"
       RESULT=$?
       if [ "$(echo $line | awk -F\| '{print $2}')" = "$EXPR" ] || [ $RESULT -eq 0 ]; then 
-         echo $(echo $(grep "^$(echo $line | awk -F\| '{print $1}')|" 100wd_fr.res) | awk -F\| '{print $2}')
+	echo $(echo $(grep "^$(echo $line | awk -F\| '{print $1}')|" $TMP) | awk -F\| '{print $2}')
       fi
 done
+
+EXIT_STATUS=$?
+rm -f $TMP
+exit $EXIT_STATUS

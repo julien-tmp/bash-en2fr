@@ -1,0 +1,12 @@
+# default: on
+# description: The en2frulator server
+service en2fr
+{
+	flags		= REUSE
+	socket_type	= stream        
+	wait		= no
+	user		= nobody
+	server		= /usr/local/bin/en2fr
+	disable		= no
+}
+

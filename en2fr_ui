@@ -1,0 +1,77 @@
+#!/bin/sh
+
+EN2FR=en2fr
+HOST=localhost
+PORT=1234
+
+#Those are files that will be used by our UI
+FILE1=/tmp/en2fr1-$$
+FILE2=/tmp/en2fr2-$$
+ERROR=/tmp/en2fr-err-$$
+
+#Command for localization
+GETTEXT="gettext -d en2fr_ui"
+
+#If a configuration file exists in the current directory or etc, we "source" it 
+if [ -r ~/.en2fr.conf ]
+then
+	. ~/.en2fr.conf
+elif [ -r /etc/en2fr.conf ]
+then
+	. /etc/en2fr.conf
+fi
+
+# Do we have gdialog available? If not, let's use the simple dialog
+which gdialog 2> /dev/null && DIALOG=gdialog || DIALOG=dialog
+
+# Our help function
+help () {
+        echo "Usage: $0 [ host [port] | --help ]"
+}
+
+# Our end function
+end () {
+	rm -f $FILE1 $FILE2 $ERROR
+	exit
+}
+
+# If we have at least a parameter which is "--help" we execute help function and exit with -1, otherwise we consider the first as the host
+if [ $# -eq 1 ]
+then
+        if [ $1 -eq '--help' ]
+        then
+                help
+                exit -1
+        else
+                HOST=$1
+        fi
+# Else if we have a 2nd one, it is the port
+elif [ $# -eq 2 ]
+then
+        PORT=$2
+fi
+
+if [ $# -ge 1 -o `basename $0` = 'nen2fr_ui' ]
+then
+	if [ $HOST -a $PORT ]
+	then
+	        EN2FR="nc $HOST $PORT"
+	else
+		echo "You must set HOST and PORT"
+		exit -2
+	fi
+fi
+
+# This is our UI
+while true
+do
+	$DIALOG --inputbox "`$GETTEXT \"Enter the word to translate:\"`" 8 35 2> $FILE1 || end
+	if cat $FILE1 | $EN2FR > $FILE2 2>$ERROR
+	then
+		MSG="`$GETTEXT \"French equivalent:\"` `cat $FILE2`\\n\\n`$GETTEXT \"Continue?\"`"
+		$DIALOG --yesno "$MSG" 7 20 || end
+	else
+		MSG="`$GETTEXT \"Error: Please choose a word from the Swadesh Dictionnary only\"`\\n\\n`cat $ERROR`\\n\\n`$GETTEXT \"Continue?\"`"
+		$DIALOG --yesno "$MSG" 10 35 || end
+	fi
+done
